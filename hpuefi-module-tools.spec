@@ -2,7 +2,7 @@
 
 ##
 # Hewlett-Packard Company Confidential
-# (C) Copyright 2019 Hewlett-Packard Development Company, L.P.
+# (C) Copyright 2020 Hewlett-Packard Development Company, L.P.
 # All rights reserved.
 #
 # Disclaimer of Warranty: This software is experimental and
@@ -22,7 +22,7 @@
 %define hp_flash_name hp-flash
 
 Name:       hpuefi-module-tools
-Version:    3.01
+Version:    3.03
 Release:    1%{?dist}
 Summary:    HP FLASH: Common files for utility kernel module for UEFI Linux HP systems
 
@@ -30,8 +30,8 @@ License:    GPLv2
 Group:      System Environment/Kernel
 # Retrieve from https://support.hp.com/us-en/drivers
 # or from https://ftp.ext.hp.com/pub/caps-softpaq/cmit/HP_LinuxTools.html
-URL:        https://ftp.hp.com/pub/softpaq/sp98501-99000/sp98908.html
-Source0:    https://ftp.hp.com/pub/softpaq/sp98501-99000/sp98908.tgz
+URL:        https://ftp.ext.hp.com/pub/softpaq/sp111001-111500/sp111455.html
+Source0:    https://ftp.ext.hp.com/pub/softpaq/sp111001-111500/sp111455.tgz
 
 BuildArch:  noarch
 Provides:   hpuefi-kmod-common = %{version}
@@ -82,5 +82,8 @@ fi
 
 
 %changelog
+* Mon Oct 25 2021 Nicolas Viéville <nicolas.vieville@uphf.fr> - 3.03-1
+- Upgrade to 3.03
+
 * Thu Oct 03 2019 Nicolas Viéville <nicolas.vieville@uphf.fr> - 3.01-1
 - Initial release
