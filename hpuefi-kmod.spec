@@ -28,9 +28,10 @@
  %global buildforkernels akmod
  %global debug_package %{nil}
 %endif
+%define hp_flash_global_ver 3.22
 
 Name:       hpuefi-kmod
-Version:    3.03
+Version:    3.04
 Release:    1%{?dist}
 Summary:    hpuefi kernel module
 
@@ -38,8 +39,8 @@ License:    GPLv2
 Group:      System Environment/Kernel
 # Retrieve from https://support.hp.com/us-en/drivers
 # or from https://ftp.ext.hp.com/pub/caps-softpaq/cmit/HP_LinuxTools.html
-URL:        https://ftp.ext.hp.com/pub/softpaq/sp111001-111500/sp111455.html
-Source0:    https://ftp.ext.hp.com/pub/softpaq/sp111001-111500/sp111455.tgz
+URL:        https://ftp.ext.hp.com/pub/softpaq/sp141001-141500/sp141048.html
+Source0:    https://ftp.ext.hp.com/pub/softpaq/sp141001-141500/sp141048.tgz
 Source11:   hpuefi-kmod-kmodtool-excludekernel-filterfile
 
 # HP UEFI flashing tool only plays on x86_64 bits machines
@@ -70,9 +71,13 @@ kmodtool --target %{_target_cpu}  --repo rpmfusion --kmodname %{name} --filterfi
 
 
 %setup -q -c -T -a 0
+tar xvf sp141048.tar
+if [ $? -ne 0 ]; then
+  exit $?
+fi
 mkdir %{name}-%{version}-src
 pushd %{name}-%{version}-src
- tar xzf ../non-rpms/hpuefi-mod-%{version}.tgz
+ tar xzf ../hpflash-%{hp_flash_global_ver}/non-rpms/hpuefi-mod-%{version}.tgz
 popd
 
 for kernel_version in %{?kernel_versions} ; do
@@ -104,6 +109,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Tue Sep 13 2022 Nicolas Viéville <nicolas.vieville@uphf.fr> - 3.04-1
+- Upgrade to 3.04
+
 * Mon Oct 25 2021 Nicolas Viéville <nicolas.vieville@uphf.fr> - 3.03-1
 - Upgrade to 3.03
 

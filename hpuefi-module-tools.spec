@@ -20,9 +20,10 @@
 
 %global debug_package %{nil}
 %define hp_flash_name hp-flash
+%define hp_flash_global_ver 3.22
 
 Name:       hpuefi-module-tools
-Version:    3.03
+Version:    3.04
 Release:    1%{?dist}
 Summary:    HP FLASH: Common files for utility kernel module for UEFI Linux HP systems
 
@@ -30,8 +31,8 @@ License:    GPLv2
 Group:      System Environment/Kernel
 # Retrieve from https://support.hp.com/us-en/drivers
 # or from https://ftp.ext.hp.com/pub/caps-softpaq/cmit/HP_LinuxTools.html
-URL:        https://ftp.ext.hp.com/pub/softpaq/sp111001-111500/sp111455.html
-Source0:    https://ftp.ext.hp.com/pub/softpaq/sp111001-111500/sp111455.tgz
+URL:        https://ftp.ext.hp.com/pub/softpaq/sp141001-141500/sp141048.html
+Source0:    https://ftp.ext.hp.com/pub/softpaq/sp141001-141500/sp141048.tgz
 
 BuildArch:  noarch
 Provides:   hpuefi-kmod-common = %{version}
@@ -50,7 +51,11 @@ This Package provides common files for the hpuefi-kmod package.
 
 %prep
 %setup -q -c
-pushd non-rpms
+tar xvf sp141048.tar
+if [ $? -ne 0 ]; then
+  exit $?
+fi
+pushd hpflash-%{hp_flash_global_ver}/non-rpms
  tar xzf hpuefi-mod-%{version}.tgz
  # Add shell script standard shebang
  sed -i -e '1 i #!/bin/sh' hpuefi-mod-%{version}/mkdevhpuefi
@@ -62,8 +67,8 @@ echo "Nothing to build."
 
 
 %install
-install -m 0755 -d                                         %{buildroot}%{_libexecdir}/%{hp_flash_name}
-install -m 0755 non-rpms/hpuefi-mod-%{version}/mkdevhpuefi %{buildroot}%{_libexecdir}/%{hp_flash_name}/
+install -m 0755 -d                                                                        %{buildroot}%{_libexecdir}/%{hp_flash_name}
+install -m 0755 hpflash-%{hp_flash_global_ver}/non-rpms/hpuefi-mod-%{version}/mkdevhpuefi %{buildroot}%{_libexecdir}/%{hp_flash_name}/
 
 
 %postun
@@ -75,13 +80,16 @@ fi
 
 
 %files
-%doc non-rpms/hpuefi-mod-%{version}/README
-%license non-rpms/hpuefi-mod-%{version}/COPYING
+%doc hpflash-%{hp_flash_global_ver}/non-rpms/hpuefi-mod-%{version}/README
+%license hpflash-%{hp_flash_global_ver}/non-rpms/hpuefi-mod-%{version}/COPYING
 %dir %{_libexecdir}/%{hp_flash_name}
 %{_libexecdir}/%{hp_flash_name}/mkdevhpuefi
 
 
 %changelog
+* Tue Sep 13 2022 Nicolas Viéville <nicolas.vieville@uphf.fr> - 3.04-1
+- Upgrade to 3.04
+
 * Mon Oct 25 2021 Nicolas Viéville <nicolas.vieville@uphf.fr> - 3.03-1
 - Upgrade to 3.03
 
