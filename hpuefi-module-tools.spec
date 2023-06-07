@@ -21,18 +21,21 @@
 %global debug_package %{nil}
 %define hp_flash_name hp-flash
 %define hp_flash_global_ver 3.22
+%define hp_flash_global_package_prefix_name sp143035
+# Build download URL directory from prefix_name
+%define hp_flash_global_package_interval %(c=%{hp_flash_global_package_prefix_name} ; t=${c//[!0-9]/} ; if [ ${t: -3} -le 500 ] ; then echo "${c//[!a-z;A-Z]/}${t::${#t}-3}001-$(( ${t::${#t}-3}001+499 ))" ; else echo "${c//[!a-z;A-Z]/}${t::${#t}-3}501-$(( ${t::${#t}-3}501+499 ))" ; fi)
 
 Name:       hpuefi-module-tools
 Version:    3.04
-Release:    1%{?dist}
+Release:    2%{?dist}
 Summary:    HP FLASH: Common files for utility kernel module for UEFI Linux HP systems
 
 License:    GPLv2
 Group:      System Environment/Kernel
 # Retrieve from https://support.hp.com/us-en/drivers
 # or from https://ftp.ext.hp.com/pub/caps-softpaq/cmit/HP_LinuxTools.html
-URL:        https://ftp.ext.hp.com/pub/softpaq/sp141001-141500/sp141048.html
-Source0:    https://ftp.ext.hp.com/pub/softpaq/sp141001-141500/sp141048.tgz
+URL:        https://ftp.hp.com/pub/softpaq/%{hp_flash_global_package_interval}/%{hp_flash_global_package_prefix_name}.html
+Source0:    https://ftp.hp.com/pub/softpaq/%{hp_flash_global_package_interval}/%{hp_flash_global_package_prefix_name}.tgz
 
 BuildArch:  noarch
 Provides:   hpuefi-kmod-common = %{version}
@@ -51,9 +54,11 @@ This Package provides common files for the hpuefi-kmod package.
 
 %prep
 %setup -q -c
-tar xvf sp141048.tar
-if [ $? -ne 0 ]; then
-  exit $?
+if [ -f %{hp_flash_global_package_prefix_name}.tar ] ; then
+ tar xvf %{hp_flash_global_package_prefix_name}.tar
+ if [ $? -ne 0 ]; then
+   exit $?
+ fi
 fi
 pushd hpflash-%{hp_flash_global_ver}/non-rpms
  tar xzf hpuefi-mod-%{version}.tgz
@@ -87,6 +92,10 @@ fi
 
 
 %changelog
+* Wed Jun 07 2023 Nicolas Viéville <nicolas.vieville@uphf.fr> - 3.04-2
+- Update sources files to sp143035.tgz
+- Adapt SPEC file
+
 * Tue Sep 13 2022 Nicolas Viéville <nicolas.vieville@uphf.fr> - 3.04-1
 - Upgrade to 3.04
 

@@ -20,18 +20,21 @@
 
 %global debug_package %{nil}
 %define hp_flash_global_ver 3.22
+%define hp_flash_global_package_prefix_name sp143035
+# Build download URL directory from prefix_name
+%define hp_flash_global_package_interval %(c=%{hp_flash_global_package_prefix_name} ; t=${c//[!0-9]/} ; if [ ${t: -3} -le 500 ] ; then echo "${c//[!a-z;A-Z]/}${t::${#t}-3}001-$(( ${t::${#t}-3}001+499 ))" ; else echo "${c//[!a-z;A-Z]/}${t::${#t}-3}501-$(( ${t::${#t}-3}501+499 ))" ; fi)
 
 Name:       hp-flash
 Version:    3.22
-Release:    1%{?dist}
+Release:    2%{?dist}
 Summary:    HP FLASH: BIOS utilities for x86_64 UEFI Linux systems
 
 License:    Redistributable, no modification permitted
 Group:      System Environment/Kernel
 # Retrieve from https://support.hp.com/us-en/drivers
 # or from https://ftp.ext.hp.com/pub/caps-softpaq/cmit/HP_LinuxTools.html
-URL:        https://ftp.ext.hp.com/pub/softpaq/sp141001-141500/sp141048.html
-Source0:    https://ftp.ext.hp.com/pub/softpaq/sp141001-141500/sp141048.tgz
+URL:        https://ftp.hp.com/pub/softpaq/%{hp_flash_global_package_interval}/%{hp_flash_global_package_prefix_name}.html
+Source0:    https://ftp.hp.com/pub/softpaq/%{hp_flash_global_package_interval}/%{hp_flash_global_package_prefix_name}.tgz
 
 Requires:   hpuefi-kmod >= 3.04
 
@@ -48,9 +51,11 @@ for HP products.
 
 %prep
 %setup -q -c
-tar xvf sp141048.tar
-if [ $? -ne 0 ]; then
-  exit $?
+if [ -f %{hp_flash_global_package_prefix_name}.tar ] ; then
+ tar xvf %{hp_flash_global_package_prefix_name}.tar
+ if [ $? -ne 0 ]; then
+   exit $?
+ fi
 fi
 pushd hpflash-%{hp_flash_global_ver}/non-rpms
  tar xzf %{name}-%{version}_%{_arch}.tgz
@@ -70,9 +75,13 @@ cp %{name}-%{version}_%{_arch}/builds/hp-repsetup.rh70 %{name}-%{version}_%{_arc
 cp %{name}-%{version}_%{_arch}/builds/hp-flash.rh80 %{name}-%{version}_%{_arch}/bin/hp-flash
 cp %{name}-%{version}_%{_arch}/builds/hp-repsetup.rh80 %{name}-%{version}_%{_arch}/bin/hp-repsetup
 %endif
-%if 0%{?fedora} || 0%{?rhel} > 8
-cp %{name}-%{version}_%{_arch}/builds/hp-flash.rh80 %{name}-%{version}_%{_arch}/bin/hp-flash
-cp %{name}-%{version}_%{_arch}/builds/hp-repsetup.rh80 %{name}-%{version}_%{_arch}/bin/hp-repsetup
+%if 0%{?rhel} == 9
+cp %{name}-%{version}_%{_arch}/builds/hp-flash.rh90 %{name}-%{version}_%{_arch}/bin/hp-flash
+cp %{name}-%{version}_%{_arch}/builds/hp-repsetup.rh90 %{name}-%{version}_%{_arch}/bin/hp-repsetup
+%endif
+%if 0%{?fedora} || 0%{?rhel} > 9
+cp %{name}-%{version}_%{_arch}/builds/hp-flash.rh90 %{name}-%{version}_%{_arch}/bin/hp-flash
+cp %{name}-%{version}_%{_arch}/builds/hp-repsetup.rh90 %{name}-%{version}_%{_arch}/bin/hp-repsetup
 %endif
 popd
 
@@ -91,7 +100,7 @@ install -m 0755 hpflash-%{hp_flash_global_ver}/non-rpms/%{name}-%{version}_%{_ar
 
 
 %files
-%doc hpflash-%{hp_flash_global_ver}/non-rpms/%{name}-%{version}_%{_arch}/docs/{hp-flash-README,hp-repsetup-README}
+%doc hpflash-%{hp_flash_global_ver}/docs/* hpflash-%{hp_flash_global_ver}/non-rpms/%{name}-%{version}_%{_arch}/docs/{hp-flash-README,hp-repsetup-README}
 %{_sbindir}/hp-flash
 %{_sbindir}/hp-repsetup
 %dir %{_libexecdir}/%{name}
@@ -100,6 +109,11 @@ install -m 0755 hpflash-%{hp_flash_global_ver}/non-rpms/%{name}-%{version}_%{_ar
 
 
 %changelog
+* Wed Jun 07 2023 Nicolas Viéville <nicolas.vieville@uphf.fr> - 3.22-2
+- Update sources files to sp143035.tgz
+- Added documentation files
+- Adapt SPEC file
+
 * Tue Sep 13 2022 Nicolas Viéville <nicolas.vieville@uphf.fr> - 3.22-1
 - Upgrade to 3.22
 

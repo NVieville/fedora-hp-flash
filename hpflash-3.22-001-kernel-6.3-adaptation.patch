@@ -1,0 +1,37 @@
+From 8a3b17af0fcc071d5edee68a543f27ee58b84aec Mon Sep 17 00:00:00 2001
+From: NVieville <nicolas.vieville@uphf.fr>
+Date: Wed, 7 Jun 2023 14:37:54 +0200
+Subject: [PATCH] Fix build for kernel >= 6.3.x
+
+Signed-off-by: NVieville <nicolas.vieville@uphf.fr>
+---
+ non-rpms/hpuefi-mod-3.04/hpuefi.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/non-rpms/hpuefi-mod-3.04/hpuefi.c b/non-rpms/hpuefi-mod-3.04/hpuefi.c
+index 712f268..c93ffb3 100644
+--- a/non-rpms/hpuefi-mod-3.04/hpuefi.c
++++ b/non-rpms/hpuefi-mod-3.04/hpuefi.c
+@@ -26,6 +26,7 @@
+ 
+ *******************************************************************************/
+ 
++#include <linux/version.h>
+ #include <linux/init.h>
+ #include <linux/module.h>
+ #include <linux/kernel.h>
+@@ -612,7 +613,11 @@ static int UefiDriverMmap(struct file *filp, struct vm_area_struct *vma)
+ /* *****Input conditions validation preamble end***** */
+ 
+    // we do not want to have this area swapped out, lock it
++#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 3, 0)
+    vma->vm_flags |= VM_LOCKED;
++#else
++   vm_flags_set(vma, VM_LOCKED);
++#endif
+    // create mapping between virtual address supplied by user and physical pages
+    if (PhysBuffer != 0) {
+        if ((remap_pfn_range(vma, vma->vm_start, PhysBuffer >> PAGE_SHIFT, size, vma->vm_page_prot)) != SUCCESS)
+-- 
+2.40.1
+
