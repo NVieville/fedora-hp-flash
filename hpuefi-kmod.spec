@@ -33,14 +33,14 @@
 %endif
 %global debug_package %{nil}
 
-%define hp_flash_global_ver 3.22
-%define hp_flash_global_package_prefix_name sp143035
+%define hp_flash_global_ver 3.24
+%define hp_flash_global_package_prefix_name sp150953
 # Build download URL directory from prefix_name
 %define hp_flash_global_package_interval %(c=%{hp_flash_global_package_prefix_name} ; t=${c//[!0-9]/} ; if [ ${t: -3} -le 500 ] ; then echo "${c//[!a-z;A-Z]/}${t::${#t}-3}001-$(( ${t::${#t}-3}001+499 ))" ; else echo "${c//[!a-z;A-Z]/}${t::${#t}-3}501-$(( ${t::${#t}-3}501+499 ))" ; fi)
 
 Name:       hpuefi-kmod
-Version:    3.04
-Release:    2%{?dist}
+Version:    3.05
+Release:    1%{?dist}
 Summary:    hpuefi kernel module
 
 License:    GPLv2
@@ -50,9 +50,6 @@ Group:      System Environment/Kernel
 URL:        https://ftp.hp.com/pub/softpaq/%{hp_flash_global_package_interval}/%{hp_flash_global_package_prefix_name}.html
 Source0:    https://ftp.hp.com/pub/softpaq/%{hp_flash_global_package_interval}/%{hp_flash_global_package_prefix_name}.tgz
 Source11:   hpuefi-kmod-kmodtool-excludekernel-filterfile
-
-# kernel support
-Patch10:    hpflash-3.22-001-kernel-6.3-adaptation.patch
 
 # HP UEFI flashing tool only plays on x86_64 bits machines
 ExclusiveArch:  x86_64
@@ -82,21 +79,15 @@ kmodtool --target %{_target_cpu}  --repo rpmfusion --kmodname %{name} --filterfi
 
 
 %setup -q -c -T -a 0
-if [ -f %{hp_flash_global_package_prefix_name}.tar ] ; then
- tar xvf %{hp_flash_global_package_prefix_name}.tar
- if [ $? -ne 0 ]; then
-   exit $?
- fi
-fi
 mkdir %{name}-%{version}-src
 pushd %{name}-%{version}-src
-tar xzf ../hpflash-%{hp_flash_global_ver}/non-rpms/hpuefi-mod-%{version}.tgz
-%patch -P 10  -p2 -b .kernel-6.3-adaptation.patch
+ tar xzf ../non-rpms/hpuefi-mod-%{version}.tgz
 popd
 
 for kernel_version in %{?kernel_versions} ; do
  cp -a %{name}-%{version}-src/hpuefi-mod-%{version} _kmod_build_${kernel_version%%___*}
 done
+
 
 %build
 for kernel_version in %{?kernel_versions}; do
@@ -122,6 +113,11 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Mar 25 2024 Nicolas Viéville <nicolas.vieville@uphf.fr> - 3.05-1
+- Upgrade to 3.05
+- Drop patch for kernel >= 6.3
+- Clean Spec file
+
 * Wed Jun 07 2023 Nicolas Viéville <nicolas.vieville@uphf.fr> - 3.04-2
 - Update sources files to sp143035.tgz
 - Use bcond to conditionally build kmod package

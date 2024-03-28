@@ -20,14 +20,14 @@
 
 %global debug_package %{nil}
 %define hp_flash_name hp-flash
-%define hp_flash_global_ver 3.22
-%define hp_flash_global_package_prefix_name sp143035
+%define hp_flash_global_ver 3.24
+%define hp_flash_global_package_prefix_name sp150953
 # Build download URL directory from prefix_name
 %define hp_flash_global_package_interval %(c=%{hp_flash_global_package_prefix_name} ; t=${c//[!0-9]/} ; if [ ${t: -3} -le 500 ] ; then echo "${c//[!a-z;A-Z]/}${t::${#t}-3}001-$(( ${t::${#t}-3}001+499 ))" ; else echo "${c//[!a-z;A-Z]/}${t::${#t}-3}501-$(( ${t::${#t}-3}501+499 ))" ; fi)
 
 Name:       hpuefi-module-tools
-Version:    3.04
-Release:    2%{?dist}
+Version:    3.05
+Release:    1%{?dist}
 Summary:    HP FLASH: Common files for utility kernel module for UEFI Linux HP systems
 
 License:    GPLv2
@@ -54,13 +54,7 @@ This Package provides common files for the hpuefi-kmod package.
 
 %prep
 %setup -q -c
-if [ -f %{hp_flash_global_package_prefix_name}.tar ] ; then
- tar xvf %{hp_flash_global_package_prefix_name}.tar
- if [ $? -ne 0 ]; then
-   exit $?
- fi
-fi
-pushd hpflash-%{hp_flash_global_ver}/non-rpms
+pushd non-rpms
  tar xzf hpuefi-mod-%{version}.tgz
  # Add shell script standard shebang
  sed -i -e '1 i #!/bin/sh' hpuefi-mod-%{version}/mkdevhpuefi
@@ -72,8 +66,8 @@ echo "Nothing to build."
 
 
 %install
-install -m 0755 -d                                                                        %{buildroot}%{_libexecdir}/%{hp_flash_name}
-install -m 0755 hpflash-%{hp_flash_global_ver}/non-rpms/hpuefi-mod-%{version}/mkdevhpuefi %{buildroot}%{_libexecdir}/%{hp_flash_name}/
+install -m 0755 -d                                         %{buildroot}%{_libexecdir}/%{hp_flash_name}
+install -m 0755 non-rpms/hpuefi-mod-%{version}/mkdevhpuefi %{buildroot}%{_libexecdir}/%{hp_flash_name}/
 
 
 %postun
@@ -85,13 +79,16 @@ fi
 
 
 %files
-%doc hpflash-%{hp_flash_global_ver}/non-rpms/hpuefi-mod-%{version}/README
-%license hpflash-%{hp_flash_global_ver}/non-rpms/hpuefi-mod-%{version}/COPYING
+%doc non-rpms/hpuefi-mod-%{version}/README
+%license non-rpms/hpuefi-mod-%{version}/COPYING
 %dir %{_libexecdir}/%{hp_flash_name}
 %{_libexecdir}/%{hp_flash_name}/mkdevhpuefi
 
 
 %changelog
+* Mon Mar 25 2024 Nicolas Viéville <nicolas.vieville@uphf.fr> - 3.05-1
+- Upgrade to 3.05
+
 * Wed Jun 07 2023 Nicolas Viéville <nicolas.vieville@uphf.fr> - 3.04-2
 - Update sources files to sp143035.tgz
 - Adapt SPEC file
