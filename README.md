@@ -8,7 +8,7 @@ The purpose of this repository is to ease the build of the packages for the last
 
 This repository contains different branches corresponding to their counterparts versions of the original HP tools available here:
 
-[https://ftp.ext.hp.com/pub/caps-softpaq/cmit/HP_LinuxTools.html](https://ftp.ext.hp.com/pub/caps-softpaq/cmit/HP_LinuxTools.html)
+[https://ftp.ext.hp.com/pub/caps-softpaq/cmit/linuxtools/HP_LinuxTools.html](https://ftp.ext.hp.com/pub/caps-softpaq/cmit/linuxtools/HP_LinuxTools.html)
 
 The `main` branch corresponds to the latest version available from the HP WEBsite.
 

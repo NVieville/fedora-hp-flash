@@ -33,20 +33,20 @@
 %endif
 %global debug_package %{nil}
 
-%define hp_flash_global_ver 3.24
-%define hp_flash_global_package_prefix_name sp150953
+%define hp_flash_global_ver 3.25
+%define hp_flash_global_package_prefix_name sp157762
 # Build download URL directory from prefix_name
 %define hp_flash_global_package_interval %(c=%{hp_flash_global_package_prefix_name} ; t=${c//[!0-9]/} ; if [ ${t: -3} -le 500 ] ; then echo "${c//[!a-z;A-Z]/}${t::${#t}-3}001-$(( ${t::${#t}-3}001+499 ))" ; else echo "${c//[!a-z;A-Z]/}${t::${#t}-3}501-$(( ${t::${#t}-3}501+499 ))" ; fi)
 
 Name:       hpuefi-kmod
-Version:    3.05
+Version:    3.06
 Release:    1%{?dist}
 Summary:    hpuefi kernel module
 
 License:    GPLv2
 Group:      System Environment/Kernel
 # Retrieve from https://support.hp.com/us-en/drivers
-# or from https://ftp.ext.hp.com/pub/caps-softpaq/cmit/HP_LinuxTools.html
+# or from https://ftp.ext.hp.com/pub/caps-softpaq/cmit/linuxtools/HP_LinuxTools.html
 URL:        https://ftp.hp.com/pub/softpaq/%{hp_flash_global_package_interval}/%{hp_flash_global_package_prefix_name}.html
 Source0:    https://ftp.hp.com/pub/softpaq/%{hp_flash_global_package_interval}/%{hp_flash_global_package_prefix_name}.tgz
 Source11:   hpuefi-kmod-kmodtool-excludekernel-filterfile
@@ -55,7 +55,7 @@ Source11:   hpuefi-kmod-kmodtool-excludekernel-filterfile
 ExclusiveArch:  x86_64
 
 # Get the needed BuildRequires (in parts depending on what we build for)
-%global AkmodsBuildRequires %{_bindir}/kmodtool, elfutils-libelf-devel
+%global AkmodsBuildRequires %{_bindir}/kmodtool, elfutils-libelf-devel, %{_bindir}/sh
 BuildRequires:  %{AkmodsBuildRequires}
 
 %{!?kernels:BuildRequires: gcc, elfutils-libelf-devel, buildsys-build-rpmfusion-kerneldevpkgs-%{?buildforkernels:%{buildforkernels}}%{!?buildforkernels:current}-%{_target_cpu} }
@@ -91,6 +91,11 @@ done
 
 %build
 for kernel_version in %{?kernel_versions}; do
+ # Manual patching shell script to adapt to Fedora rpmbuild
+ sed -i -e "s%KVERS=%KVERS=${kernel_version%%___*}%g" ${PWD}/_kmod_build_${kernel_version%%___*}/hpuefi-vm-flags.sh
+ pushd "${PWD}/_kmod_build_${kernel_version%%___*}"
+  ./hpuefi-vm-flags.sh
+ popd
  make %{?_smp_mflags} -C "${kernel_version##*___}" M="${PWD}/_kmod_build_${kernel_version%%___*}" KVERS="${kernel_version%%___*}" KSRC="${kernel_version##*___}" KDIR="%{kmodinstdir_prefix}${kernel_version%%___*}%{kmodinstdir_postfix}" modules
 done
 
@@ -113,6 +118,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Fri Apr 25 2025 Nicolas Viéville <nicolas.vieville@uphf.fr> - 3.06-1
+- Upgrade to 3.06
+
 * Mon Mar 25 2024 Nicolas Viéville <nicolas.vieville@uphf.fr> - 3.05-1
 - Upgrade to 3.05
 - Drop patch for kernel >= 6.3

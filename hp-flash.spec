@@ -19,24 +19,24 @@
 ##
 
 %global debug_package %{nil}
-%define hp_flash_global_ver 3.24
-%define hp_flash_global_package_prefix_name sp150953
+%define hp_flash_global_ver 3.25
+%define hp_flash_global_package_prefix_name sp157762
 # Build download URL directory from prefix_name
 %define hp_flash_global_package_interval %(c=%{hp_flash_global_package_prefix_name} ; t=${c//[!0-9]/} ; if [ ${t: -3} -le 500 ] ; then echo "${c//[!a-z;A-Z]/}${t::${#t}-3}001-$(( ${t::${#t}-3}001+499 ))" ; else echo "${c//[!a-z;A-Z]/}${t::${#t}-3}501-$(( ${t::${#t}-3}501+499 ))" ; fi)
 
 Name:       hp-flash
-Version:    3.24
+Version:    3.25
 Release:    1%{?dist}
 Summary:    HP FLASH: BIOS utilities for x86_64 UEFI Linux systems
 
 License:    Redistributable, no modification permitted
 Group:      System Environment/Kernel
 # Retrieve from https://support.hp.com/us-en/drivers
-# or from https://ftp.ext.hp.com/pub/caps-softpaq/cmit/HP_LinuxTools.html
+# or from https://ftp.ext.hp.com/pub/caps-softpaq/cmit/linuxtools/HP_LinuxTools.html
 URL:        https://ftp.hp.com/pub/softpaq/%{hp_flash_global_package_interval}/%{hp_flash_global_package_prefix_name}.html
 Source0:    https://ftp.hp.com/pub/softpaq/%{hp_flash_global_package_interval}/%{hp_flash_global_package_prefix_name}.tgz
 
-Requires:   hpuefi-kmod >= 3.05
+Requires:   hpuefi-kmod >= 3.06
 
 # HP UEFI flashing tool only plays on x86_64 bits machines
 ExclusiveArch:  x86_64
@@ -103,6 +103,9 @@ install -m 0755 non-rpms/%{name}-%{version}_%{_arch}/bin/hp-repsetup %{buildroot
 
 
 %changelog
+* Fri Apr 25 2025 Nicolas Viéville <nicolas.vieville@uphf.fr> - 3.25-1
+- Upgrade to 3.25
+
 * Mon Mar 25 2024 Nicolas Viéville <nicolas.vieville@uphf.fr> - 3.24-1
 - Upgrade to 3.24
 
